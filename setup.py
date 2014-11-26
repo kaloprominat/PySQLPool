@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-__version__ = '0.4'
+__version__ = '0.4.1'
 __author__ = 'Nick Verbeck'
 __author_email__ = 'nerdynick@gmail.com'
 
@@ -21,7 +21,7 @@ setup(name='PySQLPool',
                      'Programming Language :: Python',
                      'Operating System :: OS Independent',
                      'Development Status :: 5 - Production/Stable'],
-      install_requires=['MySQL_python'],
+      install_requires=['PyMySQL=0.6.2'],
       provides=['pysqlpool','PySQLPool'],
       packages=['PySQLPool'],
       package_dir={'PySQLPool': 'src/PySQLPool'}

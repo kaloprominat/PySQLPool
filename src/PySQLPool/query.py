@@ -4,7 +4,7 @@
 """
 
 import time
-import MySQLdb
+import pymysql
 from pool import Pool
 import log
 
@@ -269,7 +269,7 @@ class PySQLQuery(object):
 		
 		@see: escapeString
 		"""
-		return MySQLdb.escape_string(string)
+		return pymysql.escape_string(string)
 	
 	def escapeString(self, string):
 		"""
@@ -280,7 +280,7 @@ class PySQLQuery(object):
 		@author: Nick Verbeck
 		@since: 9/7/2008
 		"""
-		return MySQLdb.escapeString(string)
+		return pymysql.escapeString(string)
 	
 	def escape(self, string):
 		"""
@@ -291,4 +291,4 @@ class PySQLQuery(object):
 		@author: Nick Verbeck
 		@since: 9/7/2008
 		"""
-		return MySQLdb.escape(string)
+		return pymysql.escape(string)

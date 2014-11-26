@@ -26,7 +26,7 @@ class Query(unittest.TestCase):
                     "user":self.username,
                     "passwd":self.password,
                     "db":self.db}
-        self.connection = PySQLPool.connection.PySQLConnection(**self.connDict)
+        self.connection = PySQLPool.connection.Connection(**self.connDict)
             
     def testRawQueryCreation(self):
         """

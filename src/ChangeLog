@@ -21,4 +21,7 @@
 	* Improved transaction support
 	* New logging system. Legacy version is not longer supported in anyway. Uses python's logging module.
 	* Unittests. Enough said.
-	* Renaming of base code structure. Doesn't effect release just development. 
+	* Renaming of base code structure. Doesn't effect release just development.
+
+0.4.1
+	* Replace MySQLDb to pure python sql library PyMySQL

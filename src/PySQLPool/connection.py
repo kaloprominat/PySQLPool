@@ -2,7 +2,7 @@
 @author: Nick Verbeck
 @since: 5/12/2008
 """
-import MySQLdb
+import pymysql
 import datetime
 from threading import Semaphore
 
@@ -142,7 +142,7 @@ class ConnectionManager(object):
 		if self.connection is None:
 			self.Connect()
 			
-		return self.connection.cursor(MySQLdb.cursors.DictCursor)
+		return self.connection.cursor(pymysql.cursors.DictCursor)
 		
 	def _updateCheckTime(self):
 		"""
@@ -158,7 +158,7 @@ class ConnectionManager(object):
 		@since: 5/12/2008
 		"""
 		if self.connection is None:
-			self.connection = MySQLdb.connect(*[], **self.connectionInfo.info)
+			self.connection = pymysql.connect(*[], **self.connectionInfo.info)
 			
 		if self.connectionInfo.commitOnEnd is True:
 			self.connection.autocommit()
@@ -193,7 +193,7 @@ class ConnectionManager(object):
 		elif forceCheck is True or (datetime.datetime.now() - self.lastConnectionCheck) >= connection_timeout:
 			try:
 				#TODO: Find a better way to test if connection is open
-				cursor = self.connection.cursor(MySQLdb.cursors.DictCursor)
+				cursor = self.connection.cursor(pymysql.cursors.DictCursor)
 				cursor.execute('select current_user')
 				self._updateCheckTime()
 				return True
