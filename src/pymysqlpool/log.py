@@ -5,25 +5,25 @@ Created on Jun 14, 2010
 '''
 from logging import Handler
 import logging
-import PySQLPool
+import pymysqlpool
 
 class LogHandler(Handler):
-    def __init__(self, level=PySQLPool.log_level):
+    def __init__(self, level=pymysqlpool.log_level):
         Handler.__init__(self, level)
         self.formatter = logging.Formatter("%(asctime)s - %(name)s:%(threadName)s - %(levelname)s - %(message)s")
         
     def flush(self):
-        if PySQLPool.logger is not None:
-            PySQLPool.logger.flush()
+        if pymysqlpool.logger is not None:
+            pymysqlpool.logger.flush()
     
     def close(self):
-        if PySQLPool.logger is not None:
-            PySQLPool.logger.close()
+        if pymysqlpool.logger is not None:
+            pymysqlpool.logger.close()
     
     def emit(self, record):
-        if PySQLPool.logger is not None:
-            PySQLPool.logger.write(record)
+        if pymysqlpool.logger is not None:
+            pymysqlpool.logger.write(record)
             
 logger = logging.getLogger('pysqlpool')
-logger.setLevel(PySQLPool.log_level)
+logger.setLevel(pymysqlpool.log_level)
 logger.addHandler(LogHandler())

@@ -4,7 +4,12 @@
 @version: 0.2
 """
 from threading import Condition
-from connection import ConnectionManager
+from connection import ConnectionManager, Connection
+
+try:
+	from hashlib import md5 
+except Exception, e:
+	from md5 import md5
 
 class Pool(object):
 	"""
@@ -23,7 +28,7 @@ class Pool(object):
 	#Max Connections that can be opened among all connections
 	maxActiveConnections = 10
 	
-	def __init__(self):
+	def __init__(self, **kwargs):
 		"""
 		Constructor for PySQLPool
 		
@@ -32,6 +37,20 @@ class Pool(object):
 		"""
 		self.__dict__ = self.__Pool
 		
+		# if kwargs.has_key('dbhost'):
+		self.config = {}
+		self.config['dbhost'] = kwargs.get('dbhost', '127.0.0.1')
+		self.config['dbport'] = kwargs.get('dbport', int(3306))
+		self.config['dbname'] = kwargs.get('dbname')
+		self.config['dblogin'] = kwargs.get('dblogin')
+		self.config['dbpass'] = kwargs.get('dbpass')
+
+		if kwargs.has_key('charset'):
+			self.config['charset'] = kwargs.get('charset')
+
+		hashStr = ''.join([str(x) for x in self.config.values()])
+		self.connectionkey = md5(hashStr).hexdigest()
+
 		#For 1st instantiation lets setup all our variables
 		if not self.__dict__.has_key('lock'):
 			self.lock = Condition()
@@ -122,7 +141,7 @@ class Pool(object):
 		finally:
 			self.lock.release()
 		
-	def GetConnection(self, ConnectionObj):
+	def GetConnection(self, ConnectionObj=None):
 		"""
 		Get a Open and active connection
 		
@@ -133,8 +152,10 @@ class Pool(object):
 		@author: Nick Verbeck
 		@since: 5/12/2008   
 		"""
-		
-		key = ConnectionObj.getKey()
+		if ConnectionObj != None:
+			key = ConnectionObj.getKey()
+		else:
+			key = self.connectionkey
 		
 		connection = None
 		
@@ -144,10 +165,17 @@ class Pool(object):
 			if connection is None:
 				self.lock.acquire()
 				if len(self.connections[key]) < self.maxActiveConnections:
+					
 					#Create a new connection
-					connection = self._createConnection(ConnectionObj)
+					
+					if ConnectionObj != None:
+						connection = self._createConnection(ConnectionObj)
+					else:
+						connection = self._createConnection(self.config)
+
 					self.connections[key].append(connection)
 					self.lock.release()
+				
 				else:
 					#Wait for a free connection. We maintain the lock on the pool so we are the 1st to get a connection.
 					while connection is None:
@@ -163,7 +191,12 @@ class Pool(object):
 			
 			if len(self.connections[key]) < self.maxActiveConnections:
 				#Create a new connection
-				connection = self._createConnection(ConnectionObj)
+				
+				if ConnectionObj != None:
+					connection = self._createConnection(ConnectionObj)
+				else:
+					connection = self._createConnection(self.config)
+
 				self.connections[key].append(connection)
 			else:
 				#A rare thing happened. So many threads created connections so fast we need to wait for a free one.
@@ -195,7 +228,7 @@ class Pool(object):
 				
 	
 	def _createConnection(self, info):
-		connection = ConnectionManager(info)
+		connection = ConnectionManager(Connection(**info))
 		connection.Connect()
 		
 		return connection

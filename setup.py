@@ -6,7 +6,7 @@ __version__ = '0.4.1'
 __author__ = 'Nick Verbeck'
 __author_email__ = 'nerdynick@gmail.com'
 
-setup(name='PySQLPool',
+setup(name='pymysqlpool',
       version=__version__,
       author=__author__,
       author_email=__author_email__,
@@ -23,6 +23,6 @@ setup(name='PySQLPool',
                      'Development Status :: 5 - Production/Stable'],
       install_requires=['PyMySQL=0.6.2'],
       provides=['pysqlpool','PySQLPool'],
-      packages=['PySQLPool'],
-      package_dir={'PySQLPool': 'src/PySQLPool'}
+      packages=['pymysqlpool'],
+      package_dir={'pymysqlpool': 'src/pymysqlpool'}
      )
