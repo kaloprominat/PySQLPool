@@ -36,16 +36,16 @@ class PySQLConnection(object):
 					 'db': '',
 					 'port': 3306
 					 }
-		if kargs.has_key('host'):
-			self.info['host'] = kargs['host']
-		if kargs.has_key('user'):
-			self.info['user'] = kargs['user']
-		if kargs.has_key('passwd'):
-			self.info['passwd'] = kargs['passwd']
-		if kargs.has_key('db'):
-			self.info['db'] = kargs['db']
-		if kargs.has_key('port'):
-			self.info['port'] = int(kargs['port'])
+		if kargs.has_key('dbhost'):
+			self.info['host'] = kargs['dbhost']
+		if kargs.has_key('dblogin'):
+			self.info['user'] = kargs['dblogin']
+		if kargs.has_key('dbpass'):
+			self.info['passwd'] = kargs['dbpass']
+		if kargs.has_key('dbname'):
+			self.info['db'] = kargs['dbname']
+		if kargs.has_key('dbport'):
+			self.info['port'] = int(kargs['dbport'])
 		if kargs.has_key('connect_timeout'):
 			self.info['connect_timeout'] = kargs['connect_timeout']
 		if kargs.has_key('use_unicode'):

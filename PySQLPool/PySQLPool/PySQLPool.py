@@ -5,7 +5,12 @@
 """
 
 from threading import Condition
-from PySQLConnection import PySQLConnectionManager
+from PySQLConnection import PySQLConnectionManager, PySQLConnection
+
+try:
+	from hashlib import md5 
+except Exception, e:
+	from md5 import md5
 
 class PySQLPool(object):
 	"""
@@ -28,7 +33,7 @@ class PySQLPool(object):
 	#Max Active Query objects against 1 connection
 	maxActivePerConnection = 1
 	
-	def __init__(self):
+	def __init__(self, **kwargs):
 		"""
 		Constructor for PySQLPool
 		
@@ -37,6 +42,20 @@ class PySQLPool(object):
 		"""
 		self.__dict__ = self.__Pool
 		
+		# if kwargs.has_key('dbhost'):
+		self.config = {}
+		self.config['dbhost'] = kwargs.get('dbhost', '127.0.0.1')
+		self.config['dbport'] = kwargs.get('dbport', int(3306))
+		self.config['dbname'] = kwargs.get('dbname')
+		self.config['dblogin'] = kwargs.get('dblogin')
+		self.config['dbpass'] = kwargs.get('dbpass')
+
+		if kwargs.has_key('charset'):
+			self.config['charset'] = kwargs.get('charset')
+
+		hashStr = ''.join([str(x) for x in self.config.values()])
+		self.connectionkey = md5(hashStr).hexdigest()
+
 		if not self.__Pool.has_key('lock'):
 			self.__Pool['lock'] = Condition()
 			
@@ -121,7 +140,7 @@ class PySQLPool(object):
 		finally:
 			self.__Pool['lock'].release()
 		
-	def GetConnection(self, PySQLConnectionObj):
+	def GetConnection(self, PySQLConnectionObj=None):
 		"""
 		Get a Open and active connection
 		
@@ -135,8 +154,14 @@ class PySQLPool(object):
 		
 		#Lock the Connection Collection/Pool
 		self.__Pool['lock'].acquire()
+
+		if PySQLConnectionObj != None:
 		
-		key = PySQLConnectionObj.key
+			key = PySQLConnectionObj.key
+
+		else:
+
+			key = self.connectionkey
 		
 		connection = None
 		
@@ -164,14 +189,32 @@ class PySQLPool(object):
 					#Create a new Connection if Max Connections is not meet
 					connKey = len(self.__Pool['conn'][key])
 					if connKey <= self.maxActiveConnections:
-						self.__Pool['conn'][key][connKey] = PySQLConnectionManager(PySQLConnectionObj)
-						connection = self.__Pool['conn'][key][connKey]
+
+						if PySQLConnectionObj != None:
+
+							self.__Pool['conn'][key][connKey] = PySQLConnectionManager(PySQLConnectionObj)
+							connection = self.__Pool['conn'][key][connKey]
+
+						else:
+
+							self.__Pool['conn'][key][connKey] = PySQLConnectionManager(self.config)
+							connection = self.__Pool['conn'][key][connKey]							
+
 						connection.lock.acquire()
 			#Create new Connection Pool Set
 			else:
 				self.__Pool['conn'][key] = {}
-				self.__Pool['conn'][key][0] = PySQLConnectionManager(PySQLConnectionObj)
-				connection = self.__Pool['conn'][key][0]
+
+				if PySQLConnectionObj != None:
+
+					self.__Pool['conn'][key][0] = PySQLConnectionManager(PySQLConnectionObj)
+					connection = self.__Pool['conn'][key][0]
+
+				else:
+
+					self.__Pool['conn'][key][0] = PySQLConnectionManager(self.config)
+					connection = self.__Pool['conn'][key][0]					
+
 				connection.lock.acquire()
 
 			if connection is not None:	
