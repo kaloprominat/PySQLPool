@@ -203,7 +203,9 @@ class Pool(object):
 				while connection is None:
 					connection = self._getConnectionFromPoolSet(key)
 			self.lock.release()
-			
+		
+		connection.lock(block=True)
+
 		return connection
 	
 	def _getConnectionFromPoolSet(self, key):
@@ -232,3 +234,7 @@ class Pool(object):
 		connection.Connect()
 		
 		return connection
+
+	def ReturnConnection(self, connection):
+
+		connection.release()
