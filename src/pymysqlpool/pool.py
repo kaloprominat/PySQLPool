@@ -152,17 +152,24 @@ class Pool(object):
 		@author: Nick Verbeck
 		@since: 5/12/2008   
 		"""
+
 		if ConnectionObj != None:
 			key = ConnectionObj.getKey()
 		else:
 			key = self.connectionkey
 		
 		connection = None
+
+		#	acquire global lock
 		
+		self.lock.acquire()
+
 		if self.connections.has_key(key):
+
 			connection = self._getConnectionFromPoolSet(key)
 			
 			if connection is None:
+
 				self.lock.acquire()
 				if len(self.connections[key]) < self.maxActiveConnections:
 					
@@ -177,6 +184,7 @@ class Pool(object):
 					self.lock.release()
 				
 				else:
+
 					#Wait for a free connection. We maintain the lock on the pool so we are the 1st to get a connection.
 					while connection is None:
 						connection = self._getConnectionFromPoolSet(key)
@@ -184,7 +192,8 @@ class Pool(object):
 					
 		#Create new Connection Pool Set
 		else:
-			self.lock.acquire()
+
+			# self.lock.acquire()
 			#We do a double check now that its locked to be sure some other thread didn't create this while we may have been waiting.
 			if not self.connections.has_key(key):
 				self.connections[key] = []
@@ -199,12 +208,14 @@ class Pool(object):
 
 				self.connections[key].append(connection)
 			else:
+
 				#A rare thing happened. So many threads created connections so fast we need to wait for a free one.
 				while connection is None:
 					connection = self._getConnectionFromPoolSet(key)
-			self.lock.release()
 		
 		connection.lock(block=True)
+
+		self.lock.release()
 
 		return connection
 	
@@ -238,3 +249,4 @@ class Pool(object):
 	def ReturnConnection(self, connection):
 
 		connection.release()
+
