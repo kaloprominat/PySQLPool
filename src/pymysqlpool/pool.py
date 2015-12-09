@@ -23,7 +23,7 @@ class Pool(object):
 	"""
 	
 	#Dictionary used for storing all Connection information
-	__Pool = {}
+	# __Pool = {}
 	
 	#Max Connections that can be opened among all connections
 	maxActiveConnections = 10
@@ -35,7 +35,7 @@ class Pool(object):
 		@author: Nick Verbeck
 		@since: 5/12/2008
 		"""
-		self.__dict__ = self.__Pool
+		self.__dict__ = {}
 		
 		# if kwargs.has_key('dbhost'):
 		self.config = {}
